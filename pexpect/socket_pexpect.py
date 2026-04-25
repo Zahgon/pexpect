@@ -95,8 +95,7 @@ class SocketSpawn(SpawnBase):
 
     def sendline(self, s) -> int:
         """Write to socket with trailing newline, return number of bytes written"""
-        s = self._coerce_send_string(s)
-        return self.send(s + self.linesep)
+        pass
 
     def write(self, s):
         """Write to socket, return None"""
@@ -104,8 +103,7 @@ class SocketSpawn(SpawnBase):
 
     def writelines(self, sequence):
         "Call self.write() for each item in sequence"
-        for s in sequence:
-            self.write(s)
+        pass
 
     @contextmanager
     def _timeout(self, timeout):

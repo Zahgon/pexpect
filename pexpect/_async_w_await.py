@@ -43,21 +43,7 @@ async def expect_async(expecter, timeout=None):
 
 
 async def repl_run_command_async(repl, cmdlines, timeout=-1):
-    res = []
-    repl.child.sendline(cmdlines[0])
-    for line in cmdlines[1:]:
-        await repl._expect_prompt(timeout=timeout, async_=True)
-        res.append(repl.child.before)
-        repl.child.sendline(line)
-
-    # Command was fully submitted, now wait for the next prompt
-    prompt_idx = await repl._expect_prompt(timeout=timeout, async_=True)
-    if prompt_idx == 1:
-        # We got the continuation prompt - command was incomplete
-        repl.child.kill(signal.SIGINT)
-        await repl._expect_prompt(timeout=1, async_=True)
-        raise ValueError("Continuation prompt found - input was incomplete:")
-    return "".join(res + [repl.child.before])
+    pass
 
 
 class PatternWaiter(asyncio.Protocol):
@@ -68,51 +54,21 @@ class PatternWaiter(asyncio.Protocol):
         self.fut = asyncio.Future()
 
     def found(self, result):
-        if not self.fut.done():
-            self.fut.set_result(result)
-            self.transport.pause_reading()
+        pass
 
     def error(self, exc):
-        if not self.fut.done():
-            self.fut.set_exception(exc)
-            self.transport.pause_reading()
+        pass
 
     def connection_made(self, transport):
-        self.transport = transport
+        pass
 
     def data_received(self, data):
-        spawn = self.expecter.spawn
-        s = spawn._decoder.decode(data)
-        spawn._log(s, "read")
-
-        if self.fut.done():
-            spawn._before.write(s)
-            spawn._buffer.write(s)
-            return
-
-        try:
-            index = self.expecter.new_data(s)
-            if index is not None:
-                # Found a match
-                self.found(index)
-        except Exception as exc:
-            self.expecter.errored()
-            self.error(exc)
+        pass
 
     def eof_received(self):
         # N.B. If this gets called, async will close the pipe (the spawn object)
         # for us
-        try:
-            self.expecter.spawn.flag_eof = True
-            index = self.expecter.eof()
-        except EOF as exc:
-            self.error(exc)
-        else:
-            self.found(index)
+        pass
 
     def connection_lost(self, exc):
-        if isinstance(exc, OSError) and exc.errno == errno.EIO:
-            # We may get here without eof_received being called, e.g on Linux
-            self.eof_received()
-        elif exc is not None:
-            self.error(exc)
+        pass

@@ -107,8 +107,7 @@ class fdspawn(SpawnBase):
 
     def sendline(self, s):
         "Write to fd with trailing newline, return number of bytes written"
-        s = self._coerce_send_string(s)
-        return self.send(s + self.linesep)
+        pass
 
     def write(self, s):
         "Write to fd, return None"
@@ -116,8 +115,7 @@ class fdspawn(SpawnBase):
 
     def writelines(self, sequence):
         "Call self.write() for each item in sequence"
-        for s in sequence:
-            self.write(s)
+        pass
 
     def read_nonblocking(self, size=1, timeout=-1):
         """

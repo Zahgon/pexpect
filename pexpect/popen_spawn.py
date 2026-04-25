@@ -99,20 +99,7 @@ class PopenSpawn(SpawnBase):
 
     def _read_incoming(self):
         """Run in a thread to move output from a pipe to a queue."""
-        fileno = self.proc.stdout.fileno()
-        while 1:
-            buf = b''
-            try:
-                buf = os.read(fileno, 1024)
-            except OSError as e:
-                self._log(e, 'read')
-
-            if not buf:
-                # This indicates we have reached EOF
-                self._read_queue.put(None)
-                return
-
-            self._read_queue.put(buf)
+        pass
 
     def write(self, s):
         '''This is similar to send() except that there is no return value.
@@ -126,8 +113,7 @@ class PopenSpawn(SpawnBase):
         list of strings. This does not add line separators. There is no return
         value.
         '''
-        for s in sequence:
-            self.send(s)
+        pass
 
     def send(self, s):
         '''Send data to the subprocess' stdin.
@@ -149,24 +135,14 @@ class PopenSpawn(SpawnBase):
     def sendline(self, s=''):
         '''Wraps send(), sending string ``s`` to child process, with os.linesep
         automatically appended. Returns number of bytes written. '''
-
-        n = self.send(s)
-        return n + self.send(self.linesep)
+        pass
 
     def wait(self):
         '''Wait for the subprocess to finish.
 
         Returns the exit code.
         '''
-        status = self.proc.wait()
-        if status >= 0:
-            self.exitstatus = status
-            self.signalstatus = None
-        else:
-            self.exitstatus = None
-            self.signalstatus = -status
-        self.terminated = True
-        return status
+        pass
 
     def kill(self, sig):
         '''Sends a Unix signal to the subprocess.
@@ -185,4 +161,4 @@ class PopenSpawn(SpawnBase):
 
     def sendeof(self):
         '''Closes the stdin pipe from the writing end.'''
-        self.proc.stdin.close()
+        pass

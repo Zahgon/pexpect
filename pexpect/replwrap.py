@@ -58,12 +58,10 @@ class REPLWrapper(object):
             self.run_command(extra_init_cmd)
 
     def set_prompt(self, orig_prompt, prompt_change):
-        self.child.expect(orig_prompt)
-        self.child.sendline(prompt_change)
+        pass
 
     def _expect_prompt(self, timeout=-1, async_=False):
-        return self.child.expect_exact([self.prompt, self.continuation_prompt],
-                                       timeout=timeout, async_=async_)
+        pass
 
     def run_command(self, command, timeout=-1, async_=False):
         """Send a command to the REPL, wait for and return output.
@@ -80,57 +78,19 @@ class REPLWrapper(object):
           :mod:`asyncio` Future, which you can yield from to get the same
           result that this method would normally give directly.
         """
-        # Split up multiline commands and feed them in bit-by-bit
-        cmdlines = command.splitlines()
-        # splitlines ignores trailing newlines - add it back in manually
-        if command.endswith('\n'):
-            cmdlines.append('')
-        if not cmdlines:
-            raise ValueError("No command was given")
-
-        if async_:
-            from ._async import repl_run_command_async
-            return repl_run_command_async(self, cmdlines, timeout)
-
-        res = []
-        self.child.sendline(cmdlines[0])
-        for line in cmdlines[1:]:
-            self._expect_prompt(timeout=timeout)
-            res.append(self.child.before)
-            self.child.sendline(line)
-
-        # Command was fully submitted, now wait for the next prompt
-        if self._expect_prompt(timeout=timeout) == 1:
-            # We got the continuation prompt - command was incomplete
-            self.child.kill(signal.SIGINT)
-            self._expect_prompt(timeout=1)
-            raise ValueError("Continuation prompt found - input was incomplete:\n"
-                             + command)
-        return u''.join(res + [self.child.before])
+        pass
 
 def python(command=sys.executable):
     """Start a Python shell and return a :class:`REPLWrapper` object."""
-    return REPLWrapper(command, u">>> ", u"import sys; sys.ps1={0!r}; sys.ps2={1!r}")
+    pass
 
 def _repl_sh(command, args, non_printable_insert):
-    child = pexpect.spawn(command, args, echo=False, encoding='utf-8')
-
-    # If the user runs 'env', the value of PS1 will be in the output. To avoid
-    # replwrap seeing that as the next prompt, we'll embed the marker characters
-    # for invisible characters in the prompt; these show up when inspecting the
-    # environment variable, but not when bash displays the prompt.
-    ps1 = PEXPECT_PROMPT[:5] + non_printable_insert + PEXPECT_PROMPT[5:]
-    ps2 = PEXPECT_CONTINUATION_PROMPT[:5] + non_printable_insert + PEXPECT_CONTINUATION_PROMPT[5:]
-    prompt_change = u"PS1='{0}' PS2='{1}' PROMPT_COMMAND=''".format(ps1, ps2)
-
-    return REPLWrapper(child, u'\\$', prompt_change,
-                       extra_init_cmd="export PAGER=cat")
+    pass
 
 def bash(command="bash"):
     """Start a bash shell and return a :class:`REPLWrapper` object."""
-    bashrc = os.path.join(os.path.dirname(__file__), 'bashrc.sh')
-    return _repl_sh(command, ['--rcfile', bashrc], non_printable_insert='\\[\\]')
+    pass
 
 def zsh(command="zsh", args=("--no-rcs", "-V", "+Z")):
     """Start a zsh shell and return a :class:`REPLWrapper` object."""
-    return _repl_sh(command, list(args), non_printable_insert='%(!..)')
+    pass

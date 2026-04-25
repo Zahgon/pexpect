@@ -157,11 +157,10 @@ class SpawnBase(object):
         return s
 
     def _get_buffer(self):
-        return self._buffer.getvalue()
+        pass
 
     def _set_buffer(self, value):
-        self._buffer = self.buffer_type()
-        self._buffer.write(value)
+        pass
 
     # This property is provided for backwards compatibility (self.buffer used
     # to be a string/bytes object)
@@ -400,36 +399,7 @@ class SpawnBase(object):
         Like :meth:`expect`, passing ``async_=True`` will make this return an
         asyncio coroutine.
         '''
-        if timeout == -1:
-            timeout = self.timeout
-        if 'async' in kw:
-            async_ = kw.pop('async')
-        if kw:
-            raise TypeError("Unknown keyword arguments: {}".format(kw))
-
-        if (isinstance(pattern_list, self.allowed_string_types) or
-                pattern_list in (TIMEOUT, EOF)):
-            pattern_list = [pattern_list]
-
-        def prepare_pattern(pattern):
-            if pattern in (TIMEOUT, EOF):
-                return pattern
-            if isinstance(pattern, self.allowed_string_types):
-                return self._coerce_expect_string(pattern)
-            self._pattern_type_err(pattern)
-
-        try:
-            pattern_list = iter(pattern_list)
-        except TypeError:
-            self._pattern_type_err(pattern_list)
-        pattern_list = [prepare_pattern(p) for p in pattern_list]
-
-        exp = Expecter(self, searcher_string(pattern_list), searchwindowsize)
-        if async_:
-            from ._async import expect_async
-            return expect_async(exp, timeout)
-        else:
-            return exp.expect_loop(timeout)
+        pass
 
     def expect_loop(self, searcher, timeout=-1, searchwindowsize=-1):
         '''This is the common loop used inside expect. The 'searcher' should be
@@ -481,15 +451,7 @@ class SpawnBase(object):
         If the size argument is 0 then an empty string is returned. In all
         other cases the size argument is ignored, which is not standard
         behavior for a file-like object. '''
-
-        if size == 0:
-            return self.string_type()
-        # delimiter default is EOF
-        index = self.expect([self.crlf, self.delimiter])
-        if index == 0:
-            return self.before + self.crlf
-        else:
-            return self.before
+        pass
 
     def __iter__(self):
         '''This is to support iterators over a file-like object.
@@ -503,14 +465,7 @@ class SpawnBase(object):
         process should have closed its stdout. If you run this method on
         a child that is still running with its stdout open then this
         method will block until it timesout.'''
-
-        lines = []
-        while True:
-            line = self.readline()
-            if not line:
-                break
-            lines.append(line)
-        return lines
+        pass
 
     def fileno(self):
         '''Expose file descriptor for a file-like interface
@@ -524,7 +479,7 @@ class SpawnBase(object):
 
     def isatty(self):
         """Overridden in subclass using tty"""
-        return False
+        pass
 
     # For 'with spawn(...) as child:'
     def __enter__(self):

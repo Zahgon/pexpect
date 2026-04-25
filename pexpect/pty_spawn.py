@@ -242,77 +242,11 @@ class spawn(SpawnBase):
         fork/exec type of stuff for a pty. This is called by __init__. If args
         is empty then command will be parsed (split on spaces) and args will be
         set to parsed arguments. '''
-
-        # The pid and child_fd of this object get set by this method.
-        # Note that it is difficult for this method to fail.
-        # You cannot detect if the child process cannot start.
-        # So the only way you can tell if the child process started
-        # or not is to try to read from the file descriptor. If you get
-        # EOF immediately then it means that the child is already dead.
-        # That may not necessarily be bad because you may have spawned a child
-        # that performs some task; creates no stdout output; and then dies.
-
-        # If command is an int type then it may represent a file descriptor.
-        if isinstance(command, type(0)):
-            raise ExceptionPexpect('Command is an int type. ' +
-                    'If this is a file descriptor then maybe you want to ' +
-                    'use fdpexpect.fdspawn which takes an existing ' +
-                    'file descriptor instead of a command string.')
-
-        if not isinstance(args, type([])):
-            raise TypeError('The argument, args, must be a list.')
-
-        if args == []:
-            self.args = split_command_line(command)
-            self.command = self.args[0]
-        else:
-            # Make a shallow copy of the args list.
-            self.args = args[:]
-            self.args.insert(0, command)
-            self.command = command
-
-        command_with_path = which(self.command, env=self.env)
-        if command_with_path is None:
-            raise ExceptionPexpect('The command was not found or was not ' +
-                    'executable: %s.' % self.command)
-        self.command = command_with_path
-        self.args[0] = self.command
-
-        self.name = '<' + ' '.join(self.args) + '>'
-
-        assert self.pid is None, 'The pid member must be None.'
-        assert self.command is not None, 'The command member must not be None.'
-
-        kwargs = {'echo': self.echo, 'preexec_fn': preexec_fn}
-        if self.ignore_sighup:
-            def preexec_wrapper():
-                "Set SIGHUP to be ignored, then call the real preexec_fn"
-                signal.signal(signal.SIGHUP, signal.SIG_IGN)
-                if preexec_fn is not None:
-                    preexec_fn()
-            kwargs['preexec_fn'] = preexec_wrapper
-
-        if dimensions is not None:
-            kwargs['dimensions'] = dimensions
-
-        if self.encoding is not None:
-            # Encode command line using the specified encoding
-            self.args = [a if isinstance(a, bytes) else a.encode(self.encoding)
-                         for a in self.args]
-
-        self.ptyproc = self._spawnpty(self.args, env=self.env,
-                                     cwd=self.cwd, **kwargs)
-
-        self.pid = self.ptyproc.pid
-        self.child_fd = self.ptyproc.fd
-
-
-        self.terminated = False
-        self.closed = False
+        pass
 
     def _spawnpty(self, args, **kwargs):
         '''Spawn a pty and return an instance of PtyProcess.'''
-        return ptyprocess.PtyProcess.spawn(args, **kwargs)
+        pass
 
     def close(self, force=True):
         '''This closes the connection with the child application. Note that
@@ -338,8 +272,7 @@ class spawn(SpawnBase):
         the child pty may not appear as a terminal device.  This means
         methods such as setecho(), setwinsize(), getwinsize() may raise an
         IOError. '''
-
-        return os.isatty(self.child_fd)
+        pass
 
     def waitnoecho(self, timeout=-1):
         '''This waits until the terminal ECHO flag is set False. This returns
@@ -357,19 +290,7 @@ class spawn(SpawnBase):
         If timeout==-1 then this method will use the value in self.timeout.
         If timeout==None then this method to block until ECHO flag is False.
         '''
-
-        if timeout == -1:
-            timeout = self.timeout
-        if timeout is not None:
-            end_time = time.time() + timeout
-        while True:
-            if not self.getecho():
-                return True
-            if timeout < 0 and timeout is not None:
-                return False
-            if timeout is not None:
-                timeout = end_time - time.time()
-            time.sleep(0.1)
+        pass
 
     def getecho(self):
         '''This returns the terminal echo mode. This returns True if echo is
@@ -377,7 +298,7 @@ class spawn(SpawnBase):
         to enter a password often set ECHO False. See waitnoecho().
 
         Not supported on platforms where ``isatty()`` returns False.  '''
-        return self.ptyproc.getecho()
+        pass
 
     def setecho(self, state):
         '''This sets the terminal echo mode on or off. Note that anything the
@@ -411,7 +332,7 @@ class spawn(SpawnBase):
 
         Not supported on platforms where ``isatty()`` returns False.
         '''
-        return self.ptyproc.setecho(state)
+        pass
 
     def read_nonblocking(self, size=1, timeout=-1):
         '''This reads at most size characters from the child application. It
@@ -520,9 +441,7 @@ class spawn(SpawnBase):
         can be any iterable object producing strings, typically a list of
         strings. This does not add line separators. There is no return value.
         '''
-
-        for s in sequence:
-            self.write(s)
+        pass
 
     def send(self, s):
         '''Sends string ``s`` to the child process, returning the number of
@@ -574,14 +493,11 @@ class spawn(SpawnBase):
         written.  Only a limited number of bytes may be sent for each
         line in the default terminal mode, see docstring of :meth:`send`.
         '''
-        s = self._coerce_send_string(s)
-        return self.send(s + self.linesep)
+        pass
 
     def _log_control(self, s):
         """Write control characters to the appropriate log files"""
-        if self.encoding is not None:
-            s = s.decode(self.encoding, 'replace')
-        self._log(s, 'send')
+        pass
 
     def sendcontrol(self, char):
         '''Helper method that wraps send() with mnemonic access for sending control
@@ -592,9 +508,7 @@ class spawn(SpawnBase):
 
         See also, sendintr() and sendeof().
         '''
-        n, byte = self.ptyproc.sendcontrol(char)
-        self._log_control(byte)
-        return n
+        pass
 
     def sendeof(self):
         '''This sends an EOF to the child. This sends a character which causes
@@ -605,24 +519,20 @@ class spawn(SpawnBase):
         called at the beginning of a line. This method does not send a newline.
         It is the responsibility of the caller to ensure the eof is sent at the
         beginning of a line. '''
-
-        n, byte = self.ptyproc.sendeof()
-        self._log_control(byte)
+        pass
 
     def sendintr(self):
         '''This sends a SIGINT to the child. It does not require
         the SIGINT to be the first character on a line. '''
-
-        n, byte = self.ptyproc.sendintr()
-        self._log_control(byte)
+        pass
 
     @property
     def flag_eof(self):
-        return self.ptyproc.flag_eof
+        pass
 
     @flag_eof.setter
     def flag_eof(self, value):
-        self.ptyproc.flag_eof = value
+        pass
 
     def eof(self):
         '''This returns True if the EOF exception was ever raised.
@@ -634,40 +544,7 @@ class spawn(SpawnBase):
         SIGHUP and SIGINT. If "force" is True then moves onto SIGKILL. This
         returns True if the child was terminated. This returns False if the
         child could not be terminated. '''
-
-        if not self.isalive():
-            return True
-        try:
-            self.kill(signal.SIGHUP)
-            time.sleep(self.delayafterterminate)
-            if not self.isalive():
-                return True
-            self.kill(signal.SIGCONT)
-            time.sleep(self.delayafterterminate)
-            if not self.isalive():
-                return True
-            self.kill(signal.SIGINT)
-            time.sleep(self.delayafterterminate)
-            if not self.isalive():
-                return True
-            if force:
-                self.kill(signal.SIGKILL)
-                time.sleep(self.delayafterterminate)
-                if not self.isalive():
-                    return True
-                else:
-                    return False
-            return False
-        except OSError:
-            # I think there are kernel timing issues that sometimes cause
-            # this to happen. I think isalive() reports True, but the
-            # process is dead to the kernel.
-            # Make one last attempt to see if the kernel is up to date.
-            time.sleep(self.delayafterterminate)
-            if not self.isalive():
-                return True
-            else:
-                return False
+        pass
 
     def wait(self):
         '''This waits until the child exits. This is a blocking call. This will
@@ -680,18 +557,7 @@ class spawn(SpawnBase):
         previously or :meth:`isalive` method returns False.  It simply returns
         the previously determined exit status.
         '''
-
-        ptyproc = self.ptyproc
-        with _wrap_ptyprocess_err():
-            # exception may occur if "Is some other process attempting
-            # "job control with our child pid?"
-            exitstatus = ptyproc.wait()
-        self.status = ptyproc.status
-        self.exitstatus = ptyproc.exitstatus
-        self.signalstatus = ptyproc.signalstatus
-        self.terminated = True
-
-        return exitstatus
+        pass
 
     def isalive(self):
         '''This tests if the child process is running or not. This is
@@ -733,7 +599,7 @@ class spawn(SpawnBase):
         physical window size. It changes the size reported to TTY-aware
         applications like vi or curses -- applications that respond to the
         SIGWINCH signal. '''
-        return self.ptyproc.setwinsize(rows, cols)
+        pass
 
 
     def interact(self, escape_character=chr(29),
@@ -856,5 +722,4 @@ class spawn(SpawnBase):
 
 def spawnu(*args, **kwargs):
     """Deprecated: pass encoding to spawn() instead."""
-    kwargs.setdefault('encoding', 'utf-8')
-    return spawn(*args, **kwargs)
+    pass
